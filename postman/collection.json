@@ -1,0 +1,335 @@
+{
+  "info": {
+    "name": "Mini Event Management System",
+    "description": "A RESTful API for managing events, bookings, and attendance.\n\nBase URL: http://localhost:3000\n\nFlow:\n1. Create a User (POST /users)\n2. Create an Event (POST /events)\n3. Book a ticket (POST /bookings) — save the bookingCode from response\n4. Check bookings (GET /users/:id/bookings)\n5. Check in (POST /events/:id/attendance) — use the bookingCode",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string",
+      "description": "Auto-set after creating a user"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string",
+      "description": "Auto-set after creating an event"
+    },
+    {
+      "key": "bookingCode",
+      "value": "",
+      "type": "string",
+      "description": "Auto-set after creating a booking"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the server is running"
+          },
+          "response": [
+            {
+              "name": "Server Running",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Server is running\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('userId', res.data.id);",
+                  "  console.log('userId saved:', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Create a new user. The userId is auto-saved to collection variables."
+          },
+          "response": [
+            {
+              "name": "User Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"createdAt\": \"2025-01-12T10:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "Email Already Registered",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"success\": false,\n  \"error\": \"Email already registered\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "bookings"]
+            },
+            "description": "Get all bookings for a user. Uses the userId saved from Create User."
+          },
+          "response": [
+            {
+              "name": "Bookings Found",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440001\",\n      \"userId\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"eventId\": \"770e8400-e29b-41d4-a716-446655440002\",\n      \"bookingCode\": \"880e8400-e29b-41d4-a716-446655440003\",\n      \"bookingDate\": \"2025-01-12T10:30:00.000Z\",\n      \"event\": {\n        \"id\": \"770e8400-e29b-41d4-a716-446655440002\",\n        \"title\": \"Tech Conference 2025\",\n        \"date\": \"2025-06-15T09:00:00.000Z\",\n        \"description\": \"Annual tech conference\"\n      }\n    }\n  ]\n}"
+            },
+            {
+              "name": "User Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"success\": false,\n  \"error\": \"User not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "List all upcoming events sorted by date"
+          },
+          "response": [
+            {
+              "name": "Events List",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440002\",\n      \"title\": \"Tech Conference 2025\",\n      \"description\": \"Annual tech conference\",\n      \"date\": \"2025-06-15T09:00:00.000Z\",\n      \"totalCapacity\": 100,\n      \"remainingTickets\": 87,\n      \"createdAt\": \"2025-01-01T00:00:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('eventId', res.data.id);",
+                  "  console.log('eventId saved:', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Conference 2025\",\n  \"description\": \"Annual tech conference for developers\",\n  \"date\": \"2026-06-15T09:00:00.000Z\",\n  \"totalCapacity\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "Create a new event. The eventId is auto-saved to collection variables."
+          },
+          "response": [
+            {
+              "name": "Event Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"770e8400-e29b-41d4-a716-446655440002\",\n    \"title\": \"Tech Conference 2025\",\n    \"description\": \"Annual tech conference for developers\",\n    \"date\": \"2026-06-15T09:00:00.000Z\",\n    \"totalCapacity\": 100,\n    \"remainingTickets\": 100,\n    \"createdAt\": \"2025-01-12T10:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"error\": \"title is required\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.bookingCode) {",
+                  "  pm.collectionVariables.set('bookingCode', res.data.bookingCode);",
+                  "  console.log('bookingCode saved:', res.data.bookingCode);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"eventId\": \"{{eventId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            },
+            "description": "Book a ticket for a user. Uses userId and eventId from collection variables. The bookingCode is auto-saved."
+          },
+          "response": [
+            {
+              "name": "Booking Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"660e8400-e29b-41d4-a716-446655440001\",\n    \"userId\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"eventId\": \"770e8400-e29b-41d4-a716-446655440002\",\n    \"bookingCode\": \"880e8400-e29b-41d4-a716-446655440003\",\n    \"bookingDate\": \"2025-01-12T10:30:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "No Tickets Available",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"error\": \"No tickets available\"\n}"
+            },
+            {
+              "name": "Already Booked",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"success\": false,\n  \"error\": \"You have already booked this event\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Check In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingCode\": \"{{bookingCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/attendance",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "attendance"]
+            },
+            "description": "Check in to an event using the booking code. Uses eventId and bookingCode from collection variables."
+          },
+          "response": [
+            {
+              "name": "Check In Successful",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"Check in successful\",\n    \"user\": \"John Doe\",\n    \"event\": \"Tech Conference 2025\",\n    \"entryTime\": \"2026-06-15T09:15:00.000Z\",\n    \"totalTicketsBooked\": 87\n  }\n}"
+            },
+            {
+              "name": "Invalid Booking Code",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"success\": false,\n  \"error\": \"Invalid booking code\"\n}"
+            },
+            {
+              "name": "Already Checked In",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"success\": false,\n  \"error\": \"Already checked in\"\n}"
+            },
+            {
+              "name": "Wrong Event",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"error\": \"Booking code does not belong to this event\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

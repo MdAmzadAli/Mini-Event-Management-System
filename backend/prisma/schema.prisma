@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  name      String   @db.VarChar(100)
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  bookings         Booking[]
+  eventAttendances EventAttendance[]
+}
+
+model Event {
+  id               String   @id @default(uuid()) @db.VarChar(36)
+  title            String   
+  description      String?  
+  date             DateTime
+  totalCapacity    Int     
+  remainingTickets Int      
+  createdAt        DateTime @default(now())
+
+  bookings    Booking[]
+  attendances EventAttendance[]
+
+  @@index([date])
+}
+
+model Booking {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  userId      String   @db.VarChar(36)
+  eventId     String   @db.VarChar(36)
+  bookingCode String   @unique @db.VarChar(36)
+  bookingDate DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+  
+  @@index([eventId])
+}
+
+model EventAttendance {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  userId    String   @db.VarChar(36)
+  eventId   String   @db.VarChar(36)
+  entryTime DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+  
+  @@unique([userId, eventId])
+  @@index([eventId])
+}
