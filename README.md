@@ -3,6 +3,15 @@
 A RESTful API built with Node.js, Express, Prisma 7 ORM, and MySQL for managing events, bookings, and attendance.
 
 ---
+## 🔗 Live Demo
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | [candid-trifle-bbe0f9.netlify.app](https://candid-trifle-bbe0f9.netlify.app) |
+| **Backend API** | [your-backend.onrender.com](https://mini-event-management-system.onrender.com) |
+| **Swagger Docs** | [your-backend.onrender.com/api-docs](https://mini-event-management-system.onrender.com/api-docs) |
+
+---
 
 ## Tech Stack
 
