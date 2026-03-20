@@ -1,13 +1,7 @@
--- Mini Event Management System
--- Database Schema Export
--- Generated for MySQL 8.0+
 
 CREATE DATABASE IF NOT EXISTS event_management;
 USE event_management;
 
--- --------------------------------------------------------
--- Table: User
--- --------------------------------------------------------
 CREATE TABLE `User` (
   `id`        VARCHAR(36)  NOT NULL,
   `name`      VARCHAR(100) NOT NULL,
@@ -18,9 +12,7 @@ CREATE TABLE `User` (
   UNIQUE KEY `User_email_key` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- Table: Event
--- --------------------------------------------------------
+
 CREATE TABLE `Event` (
   `id`               VARCHAR(36)  NOT NULL,
   `title`            VARCHAR(191) NOT NULL,
@@ -34,9 +26,7 @@ CREATE TABLE `Event` (
   INDEX `Event_date_idx` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- Table: Booking
--- --------------------------------------------------------
+
 CREATE TABLE `Booking` (
   `id`          VARCHAR(36)  NOT NULL,
   `userId`      VARCHAR(36)  NOT NULL,
@@ -58,9 +48,7 @@ CREATE TABLE `Booking` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
--- Table: EventAttendance
--- --------------------------------------------------------
+
 CREATE TABLE `EventAttendance` (
   `id`        VARCHAR(36) NOT NULL,
   `userId`    VARCHAR(36) NOT NULL,
